@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "874057485737",
+    "firebase_url": "https://cupproject-dbe8c-default-rtdb.firebaseio.com",
+    "project_id": "cupproject-dbe8c",
+    "storage_bucket": "cupproject-dbe8c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874057485737:android:b8268793bca7a4e3f448b8",
+        "android_client_info": {
+          "package_name": "com.example.coupproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2ELnRObjiEbyF209DmBn7S_7WV-JrQLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874057485737:android:baa25fd18e237996f448b8",
+        "android_client_info": {
+          "package_name": "com.example.cupproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2ELnRObjiEbyF209DmBn7S_7WV-JrQLY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
