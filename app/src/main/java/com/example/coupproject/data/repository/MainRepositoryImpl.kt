@@ -1,8 +1,10 @@
 package com.example.coupproject.data.repository
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import com.example.coupproject.domain.model.Friend
 import com.example.coupproject.domain.repository.MainRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +18,19 @@ class MainRepositoryImpl @Inject constructor(private val context: Context) :
         /**roomDb써서 관리할것*/
         return flow {
             emit(Friend("name", "id"))
+        }
+    }
+
+    override suspend fun checkPermission(): Flow<Void> {
+        return flow {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                if (!Settings.canDrawOverlays(context)) {
+//                    val intent = Intent(
+//                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+//                        Uri.parse("package:$packageName")
+//                    )
+//                }
+//            }
         }
     }
 

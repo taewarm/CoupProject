@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".view.CoupApplication"
@@ -20,7 +21,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -40,6 +40,15 @@
                     android:scheme="${KAKAO_MANIFEST_SCHME_KEY}" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".CoupBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="coupproject.action.START_SERVICE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface MainRepository {
     suspend fun getFriend(): Flow<Friend>
+    suspend fun checkPermission(): Flow<Void>
 }
