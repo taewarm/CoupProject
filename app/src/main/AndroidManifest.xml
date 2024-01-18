@@ -3,7 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        android:minSdkVersion="33" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".view.CoupApplication"
@@ -41,6 +45,9 @@
             </intent-filter>
         </activity>
 
+        <service
+            android:name=".data.service.CoupService"
+            android:exported="true" />
         <receiver
             android:name=".CoupBroadcastReceiver"
             android:enabled="true"

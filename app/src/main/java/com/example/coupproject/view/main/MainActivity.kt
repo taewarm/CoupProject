@@ -1,9 +1,9 @@
 package com.example.coupproject.view.main
 
+import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.viewModelScope
 import com.example.coupproject.R
+import com.example.coupproject.data.service.CoupService
 import com.example.coupproject.databinding.ActivityMainBinding
 import com.example.coupproject.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,25 +41,34 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.btnAddFriends.setOnClickListener {
-            val intent = Intent()
-            intent.action = "coupproject.action.START_SERVICE"
-            sendBroadcast(intent)
+//            val intent = Intent()
+//            intent.action = "coupproject.action.START_SERVICE"
+//            sendBroadcast(intent)
+            Log.i(MainActivity::class.java.name, "${isMyServiceRunning(CoupService::class.java)}")
         }
         setContentView(binding.root)
-        val intentFilter = IntentFilter().apply {
-            addAction("coupproject.action.START_SERVICE")
+    }
+
+     fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+        try {
+            val manager =
+                getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            for (service in manager.getRunningServices(
+                Int.MAX_VALUE
+            )) {
+                if (serviceClass.name == service.service.className) {
+                    return true
+                }
+            }
+        } catch (e: Exception) {
+            return false
         }
-        registerReceiver(br, intentFilter)
+        return false
     }
 
     override fun onResume() {
         super.onResume()
         checkPermission()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(br)
     }
 
     private fun checkPermission() {
@@ -76,18 +86,21 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
                 count += 1
             } else {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                    startForegroundService(Intent(applicationContext, CoupService::class.java))
-//                } else {
-//                    startService(Intent(applicationContext, CoupService::class.java))
-//                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startService(Intent(applicationContext, CoupService::class.java))
+                } else {
+                    startService(Intent(applicationContext, CoupService::class.java))
+                }
             }
         } else {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                startForegroundService(Intent(applicationContext, CoupService::class.java))
-//            } else {
-//                startService(Intent(applicationContext, CoupService::class.java))
-//            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startService(Intent(applicationContext, CoupService::class.java))
+            } else {
+                startService(Intent(applicationContext, CoupService::class.java))
+            }
         }
+    }
+    companion object{
+
     }
 }
