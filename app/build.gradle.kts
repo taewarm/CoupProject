@@ -27,6 +27,7 @@ android {
         )
         manifestPlaceholders["KAKAO_MANIFEST_SCHME_KEY"] =
             gradleLocalProperties(rootDir).getProperty("kakao_api_schme_key")
+        buildConfigField("String","FIREBASE_URI_KEY",gradleLocalProperties(rootDir).getProperty("firebase_uri_key"))
     }
 
     buildTypes {
@@ -68,6 +69,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.firebaseui:firebase-ui-storage:7.2.0")
     implementation("com.kakao.sdk:v2-all:2.16.0")
     implementation("androidx.navigation:navigation-compose:$nav_version")
 }

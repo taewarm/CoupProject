@@ -17,8 +17,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
         android:theme="@style/Theme.CoupProject"
+        android:supportsRtl="true"
         tools:targetApi="31">
         <activity
             android:name=".view.login.LoginActivity"
@@ -29,6 +29,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.main.MainActivity" />
+        <activity
+            android:name=".view.dialog.DialogActivity"
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true">

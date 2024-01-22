@@ -10,12 +10,54 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.coupproject.R
+import com.example.coupproject.domain.model.Photo
+import com.example.coupproject.view.dialog.DialogActivity
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
 
 class CoupService : Service() {
+    private val addValueListener = object : ChildEventListener {
+        override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+            Log.i(TAG, "onChildAdded()")
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            Log.i(
+                TAG,
+                "onChildChanged() - value : ${snapshot.getValue<Photo>()?.fileName ?: "asdasdasd"}"
+            )
+            startActivity(
+                Intent(
+                    this@CoupService,
+                    DialogActivity::class.java
+                )
+                    .putExtra(
+                        "fileName",
+                        snapshot.getValue<Photo>()?.fileName
+                    )
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
+
+        override fun onChildRemoved(snapshot: DataSnapshot) {
+            Log.i(TAG, "onChildRemoved()")
+        }
+
+        override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            Log.i(TAG, "onChildMoved()")
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.e(TAG, error.message, error.toException())
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i("CoupService", "Start")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.i("CoupService", "Version Oreo <<<")
             val name = "name"//getString(R.string.channel_name)
             val descriptionText = "descriptionText"//getString(R.string.channel_description)
             val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -30,9 +72,9 @@ class CoupService : Service() {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("CoupService")
             .setContentText("Play CoupService..")
+            .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         startForeground(1, notification.build())
-        Log.i("CoupService", "End")
         return START_NOT_STICKY
     }
 
@@ -40,9 +82,18 @@ class CoupService : Service() {
         return null
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        Firebase.database.reference.addChildEventListener(addValueListener)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-//        stopService(Intent)
-        Log.i("CoupService", "End CoupService")
+        Firebase.database.reference.removeEventListener(addValueListener)
+        Log.i(TAG, "End CoupService")
+    }
+
+    companion object {
+        const val TAG = "CoupService"
     }
 }

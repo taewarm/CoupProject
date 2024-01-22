@@ -29,16 +29,17 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun startKakaoLogin() {
-        viewModel.startKakaoLogin(this) { token, error ->
-            error?.let {
-                Toast.makeText(this, "KakaoLogin Fail : ${it.message}", Toast.LENGTH_SHORT)
-                    .show()
-            }
-            token?.let {
-                finish()
-                startActivity(Intent(this, MainActivity::class.java))
-            } ?: Toast.makeText(this, "Error KakaoLogin", Toast.LENGTH_SHORT).show()
-        }
+        startActivity(Intent(this, MainActivity::class.java))
+//        viewModel.startKakaoLogin(this) { token, error ->
+//            error?.let {
+//                Toast.makeText(this, "KakaoLogin Fail : ${it.message}", Toast.LENGTH_SHORT)
+//                    .show()
+//            }
+//            token?.let {
+//                finish()
+//                startActivity(Intent(this, MainActivity::class.java))
+//            } ?: Toast.makeText(this, "Error KakaoLogin", Toast.LENGTH_SHORT).show()
+//        }
     }
 
     private fun requestPermission() {
@@ -51,12 +52,40 @@ class LoginActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                0
+                NOTIFICATION_PERMISSION_REQUEST_CODE
             )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            NOTIFICATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty()) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    } else {
+                        Toast.makeText(
+                            applicationContext,
+                            "NOTIFICATION_PERMISSION_DENIED",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        finish()
+                    }
+                }
+            }
+
+            else -> ""
         }
     }
 
     companion object {
         const val TAG = "LoginActivity"
+        const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1995
     }
 }
