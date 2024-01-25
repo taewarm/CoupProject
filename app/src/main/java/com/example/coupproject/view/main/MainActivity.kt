@@ -8,11 +8,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.lifecycle.viewModelScope
 import com.example.coupproject.BuildConfig
 import com.example.coupproject.R
@@ -26,7 +26,6 @@ import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Date
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -45,15 +44,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.bind(layoutInflater.inflate(R.layout.activity_main, null))
         binding.activity = this
+        viewModel.getFriend(intent.getStringExtra("token").toString()) {
+            binding.btnAddFriends.visibility =
+                if (it.hasChild("friend")) View.GONE else View.VISIBLE
+        }
+        if (isMyServiceRunning(CoupService::class.java)) binding.btnStartService.text =
+            "서비스 중지" else binding.btnStartService.text = "서비스 시작"
         viewModel.viewModelScope.launch {
-            viewModel.friend.collect { friend ->
-                binding.btnAddFriends.isVisible = (friend.name.isEmpty() || friend.id.isEmpty())
+            viewModel.hasMembership.collect { has ->
+//                binding.btnAddFriends.isVisible = (friend.name.isEmpty() || friend.id.isEmpty())
+                Log.i(TAG, has.toString())
             }
         }
         binding.btnAddFriends.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-            activityResultLauncher.launch(intent)
-//            viewModel.getFriend()
+
         }
         setContentView(binding.root)
     }
@@ -94,21 +98,26 @@ class MainActivity : AppCompatActivity() {
                 )
                 startActivity(intent)
                 count += 1
-            } else {
-                startService(Intent(this, CoupService::class.java))
             }
-        } else {
-            startService(Intent(this, CoupService::class.java))
+//            else {
+//                startService(Intent(this, CoupService::class.java))
+//            }
         }
+//        else {
+//            startService(Intent(this, CoupService::class.java))
+//        }
     }
 
     fun startService() {
-        if (isMyServiceRunning(CoupService::class.java)) {
-            Log.i(TAG, "StopService - CoupService")
-            stopService(Intent(this, CoupService::class.java))
-        } else {
-            Log.i(TAG, "StartService - CoupService")
-            startService(Intent(this, CoupService::class.java))
+        val token = intent.getStringExtra("token").toString()
+        if (token.isNotEmpty()) {
+            if (isMyServiceRunning(CoupService::class.java)) {
+                Log.i(TAG, "StopService - CoupService")
+                stopService(Intent(this, CoupService::class.java).putExtra("token", token))
+            } else {
+                Log.i(TAG, "StartService - CoupService")
+                startService(Intent(this, CoupService::class.java).putExtra("token", token))
+            }
         }
     }
 
@@ -126,8 +135,14 @@ class MainActivity : AppCompatActivity() {
         }.addOnFailureListener { Log.e(TAG, "Fail $fileName Upload") }
             .addOnSuccessListener {
                 Log.i(TAG, "Success $fileName Upload")
-                Firebase.database.reference.child("users").setValue(Photo("taetaewon1"))
+                Firebase.database.reference.child(intent.getStringExtra("token").toString()).child("photo")
+                    .setValue(Photo(intent.getStringExtra("token").toString(), "taetaewon1"))
             }
+    }
+
+    fun selectPhoto() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+        activityResultLauncher.launch(intent)
     }
 
     companion object {

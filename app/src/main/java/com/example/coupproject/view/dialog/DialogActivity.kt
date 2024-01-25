@@ -11,6 +11,8 @@ import com.bumptech.glide.Glide
 import com.example.coupproject.BuildConfig
 import com.example.coupproject.R
 import com.example.coupproject.databinding.ActivityDialogBinding
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 
 class DialogActivity : AppCompatActivity() {
@@ -44,7 +46,27 @@ class DialogActivity : AppCompatActivity() {
         reference.downloadUrl.addOnSuccessListener {
             Glide.with(this).load(it).into(binding.dialogImage)
         }.addOnFailureListener { Log.e(TAG, it.message, it) }
+        binding.root.setOnClickListener {
+            finish()
+        }
         setContentView(binding.root)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        photoDelete()
+    }
+
+    private fun photoDelete() {
+        val storageRef = FirebaseStorage.getInstance(BuildConfig.FIREBASE_URI_KEY).reference
+        val riversRef = storageRef.child("images/${intent.getStringExtra("fileName")}")
+        riversRef.delete().addOnSuccessListener {
+            Log.i(TAG, "${intent.getStringExtra("fileName")} - delete()")
+        }.addOnFailureListener { Log.e(TAG, "${intent.getStringExtra("fileName")} - deleteFail()") }
+        Firebase.database.reference.child(intent.getStringExtra("token").toString())
+            .removeValue().addOnSuccessListener {
+                Log.i(TAG, "${intent.getStringExtra("token")} - delete()")
+            }
     }
 
     companion object {

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +14,9 @@ import androidx.core.content.ContextCompat
 import com.example.coupproject.R
 import com.example.coupproject.databinding.ActivityLoginBinding
 import com.example.coupproject.view.main.MainActivity
+import com.example.coupproject.view.member.AddMemberActivity
 import com.example.coupproject.viewmodel.LoginViewModel
+import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,22 +27,49 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.bind(layoutInflater.inflate(R.layout.activity_login, null))
         binding.activity = this
+        me()
         requestPermission()
         setContentView(binding.root)
     }
 
+    fun logout() {
+        UserApiClient.instance.logout {
+            Log.e(TAG, "Kakao Logout")
+        }
+    }
+
+    fun me() {
+        UserApiClient.instance.me { user, error ->
+            user?.let {
+                viewModel.getMembership { snapshot ->
+                    if (snapshot.hasChild(it.id.toString())) {
+                        startActivity(
+                            Intent(this@LoginActivity, MainActivity::class.java).putExtra(
+                                "token",
+                                it.id.toString()
+                            )
+                        )
+                    }
+                }
+            }
+            error?.let {
+                Log.e(TAG, it.message, it)
+            }
+        }
+    }
+
     fun startKakaoLogin() {
-        startActivity(Intent(this, MainActivity::class.java))
-//        viewModel.startKakaoLogin(this) { token, error ->
-//            error?.let {
-//                Toast.makeText(this, "KakaoLogin Fail : ${it.message}", Toast.LENGTH_SHORT)
-//                    .show()
-//            }
-//            token?.let {
-//                finish()
-//                startActivity(Intent(this, MainActivity::class.java))
-//            } ?: Toast.makeText(this, "Error KakaoLogin", Toast.LENGTH_SHORT).show()
-//        }
+        viewModel.startKakaoLogin(this) { token, error ->
+            error?.let {
+                Toast.makeText(this, "KakaoLogin Fail : ${it.message}", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            token?.let {
+                finish()
+                Log.i(TAG, "$it")
+                startActivity(Intent(this, AddMemberActivity::class.java))
+            } ?: Toast.makeText(this, "Error KakaoLogin", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun requestPermission() {
@@ -81,6 +111,14 @@ class LoginActivity : AppCompatActivity() {
             }
 
             else -> ""
+        }
+    }
+
+    private fun getAccessToken() {
+        viewModel.getAccessTokenInfo { accessTokenInfo, throwable ->
+            accessTokenInfo?.let {
+                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+            }
         }
     }
 

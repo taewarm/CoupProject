@@ -20,27 +20,41 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 
 class CoupService : Service() {
+    private var token = ""
     private val addValueListener = object : ChildEventListener {
         override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-            Log.i(TAG, "onChildAdded()")
-        }
-
-        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-            Log.i(
-                TAG,
-                "onChildChanged() - value : ${snapshot.getValue<Photo>()?.fileName ?: "asdasdasd"}"
-            )
+            Log.i(TAG, "onChildAdded()- ${snapshot.key}//${snapshot.value}")
+            val photo = snapshot.getValue<Photo>()
             startActivity(
                 Intent(
                     this@CoupService,
                     DialogActivity::class.java
-                )
+                ).putExtra("token", photo?.token)
                     .putExtra(
                         "fileName",
-                        snapshot.getValue<Photo>()?.fileName
+                        photo?.fileName
                     )
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
+        }
+
+        override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+            Log.i(TAG, snapshot.key.toString() + "////")
+            Log.i(
+                TAG,
+                "onChildChanged() - value : ${snapshot.getValue<Photo>()?.fileName ?: "asdasdasd"}"
+            )
+//            startActivity(
+//                Intent(
+//                    this@CoupService,
+//                    DialogActivity::class.java
+//                )
+//                    .putExtra(
+//                        "fileName",
+//                        snapshot.getValue<Photo>()?.fileName
+//                    )
+//                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            )
         }
 
         override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -74,6 +88,8 @@ class CoupService : Service() {
             .setContentText("Play CoupService..")
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        token = intent?.let { it.getStringExtra("token") }.toString()
+        Firebase.database.reference.child(token).addChildEventListener(addValueListener)
         startForeground(1, notification.build())
         return START_NOT_STICKY
     }
@@ -84,12 +100,11 @@ class CoupService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Firebase.database.reference.addChildEventListener(addValueListener)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Firebase.database.reference.removeEventListener(addValueListener)
+        Firebase.database.reference.child(token).removeEventListener(addValueListener)
         Log.i(TAG, "End CoupService")
     }
 

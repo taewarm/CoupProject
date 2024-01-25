@@ -1,9 +1,9 @@
 package com.example.coupproject.di
 
 import android.content.Context
-import com.example.coupproject.data.repository.LoginRepositoryImpl
-import com.example.coupproject.data.repository.MainRepositoryImpl
-import com.example.coupproject.domain.repository.LoginRepository
+import com.example.coupproject.data.repository.KakaoRepositoryImpl
+import com.example.coupproject.data.repository.FirebaseRepositoryImpl
+import com.example.coupproject.domain.repository.KakaoRepository
 import com.example.coupproject.domain.repository.MainRepository
 import dagger.Module
 import dagger.Provides
@@ -17,13 +17,13 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideLoginRepositoryImpl(@ApplicationContext context: Context): LoginRepository {
-        return LoginRepositoryImpl(context)
+    fun provideLoginRepositoryImpl(@ApplicationContext context: Context): KakaoRepository {
+        return KakaoRepositoryImpl(context)
     }
 
     @Provides
     @Singleton
     fun provideMainRepositoryImpl(@ApplicationContext context: Context): MainRepository {
-        return MainRepositoryImpl(context)
+        return FirebaseRepositoryImpl(context)
     }
 }

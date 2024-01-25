@@ -24,5 +24,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <Button
+            android:id="@+id/btn_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="로그아웃"
+            android:onClick="@{()->activity.logout()}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_login" />
+
+        <Button
+            android:id="@+id/btn_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{()->activity.me()}"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="내정보"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_logout" />
+
+
+
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

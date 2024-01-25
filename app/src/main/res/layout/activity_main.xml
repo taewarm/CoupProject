@@ -36,5 +36,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btn_add_friends" />
 
+        <Button
+            android:id="@+id/btn_photo_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="사진 업로드"
+            android:onClick="@{() -> activity.selectPhoto()}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_start_service" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

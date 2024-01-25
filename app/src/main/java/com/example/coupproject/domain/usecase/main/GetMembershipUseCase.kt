@@ -5,7 +5,7 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.database.DataSnapshot
 import javax.inject.Inject
 
-class GetFriendUseCase @Inject constructor(private val repository: MainRepository) {
-    operator fun invoke(memberId: String, callback: OnSuccessListener<DataSnapshot>) =
-        repository.getFriend(memberId, callback)
+class GetMembershipUseCase @Inject constructor(private val repository: MainRepository) {
+    operator fun invoke(callback: OnSuccessListener<DataSnapshot>) =
+        repository.getMembership(callback)
 }
