@@ -3,6 +3,7 @@ package com.example.coupproject.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.coupproject.domain.model.User
 import com.example.coupproject.domain.usecase.login.HasAccessTokenUseCase
 import com.example.coupproject.domain.usecase.main.CheckPermissionUseCase
 import com.example.coupproject.domain.usecase.main.GetFriendUseCase
@@ -12,8 +13,8 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.database.DataSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -27,8 +28,8 @@ class MainViewModel @Inject constructor(
     private val getMembershipUseCase: GetMembershipUseCase,
     private val setMembershipUseCase: SetMembershipUseCase
 ) : ViewModel() {
-    private val _hasMembership = MutableSharedFlow<Boolean>()
-    val hasMembership: SharedFlow<Boolean> = _hasMembership
+    private val _hasMembership = MutableStateFlow(User())
+    val hasMembership: StateFlow<User> = _hasMembership
 
     fun getFriend(memberId: String, callback: OnSuccessListener<DataSnapshot>) {
         viewModelScope.launch(Dispatchers.Main) {
@@ -36,6 +37,12 @@ class MainViewModel @Inject constructor(
                 .catch { exception ->
                     Log.e(TAG, exception.message, exception)
                 }.collect()
+        }
+    }
+
+    fun saveFriend(user: User) {
+        viewModelScope.launch {
+            _hasMembership.emit(user)
         }
     }
 

@@ -1,8 +1,10 @@
 package com.example.coupproject.view.main
 
 import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,8 +21,10 @@ import com.example.coupproject.R
 import com.example.coupproject.data.service.CoupService
 import com.example.coupproject.databinding.ActivityMainBinding
 import com.example.coupproject.domain.model.Photo
+import com.example.coupproject.domain.model.User
 import com.example.coupproject.viewmodel.MainViewModel
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,6 +42,17 @@ class MainActivity : AppCompatActivity() {
                 photoUpload(photoUri)
             }
         }
+    private val broadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "com.example.coup_project.START_COUP_SERVICE" -> binding.btnStartService.text =
+                    "서비스 중지"
+
+                "com.example.coup_project.END_COUP_SERVICE" -> binding.btnStartService.text =
+                    "서비스 시작"
+            }
+        }
+    }
     private var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,24 +60,36 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.bind(layoutInflater.inflate(R.layout.activity_main, null))
         binding.activity = this
         viewModel.getFriend(intent.getStringExtra("token").toString()) {
-            binding.btnAddFriends.visibility =
-                if (it.hasChild("friend")) View.GONE else View.VISIBLE
+            val member = it.getValue<User>()
+            member?.let { user ->
+                viewModel.saveFriend(user)
+            }
         }
         if (isMyServiceRunning(CoupService::class.java)) binding.btnStartService.text =
             "서비스 중지" else binding.btnStartService.text = "서비스 시작"
         viewModel.viewModelScope.launch {
-            viewModel.hasMembership.collect { has ->
-//                binding.btnAddFriends.isVisible = (friend.name.isEmpty() || friend.id.isEmpty())
-                Log.i(TAG, has.toString())
+            viewModel.hasMembership.collect { user ->
+                binding.btnAddFriends.visibility =
+                    if (user.friend?.isNotEmpty() == true) View.GONE else View.VISIBLE
             }
         }
         binding.btnAddFriends.setOnClickListener {
 
         }
+        val intentFilter = IntentFilter().apply {
+            addAction("com.example.coup_project.START_COUP_SERVICE")
+            addAction("com.example.coup_project.END_COUP_SERVICE")
+        }
+        registerReceiver(broadcastReceiver, intentFilter)
         setContentView(binding.root)
     }
 
-    fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(broadcastReceiver)
+    }
+
+    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         try {
             val manager =
                 getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
@@ -135,9 +162,17 @@ class MainActivity : AppCompatActivity() {
         }.addOnFailureListener { Log.e(TAG, "Fail $fileName Upload") }
             .addOnSuccessListener {
                 Log.i(TAG, "Success $fileName Upload")
-                Firebase.database.reference.child(intent.getStringExtra("token").toString()).child("photo")
-                    .setValue(Photo(intent.getStringExtra("token").toString(), "taetaewon1"))
+                viewModel.hasMembership.value.friend?.let {
+                    Log.i(TAG, "$it let 진")
+                    Firebase.database.reference.child(it)
+                        .child("photo")
+                        .setValue(
+                            Photo(it, "taetaewon1"),
+                            ""
+                        )
+                }
             }
+        Log.i(TAG, "End $fileName Upload")
     }
 
     fun selectPhoto() {

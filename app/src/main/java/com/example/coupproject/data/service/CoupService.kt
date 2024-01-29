@@ -40,10 +40,6 @@ class CoupService : Service() {
 
         override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
             Log.i(TAG, snapshot.key.toString() + "////")
-            Log.i(
-                TAG,
-                "onChildChanged() - value : ${snapshot.getValue<Photo>()?.fileName ?: "asdasdasd"}"
-            )
 //            startActivity(
 //                Intent(
 //                    this@CoupService,
@@ -90,6 +86,7 @@ class CoupService : Service() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         token = intent?.let { it.getStringExtra("token") }.toString()
         Firebase.database.reference.child(token).addChildEventListener(addValueListener)
+        sendBroadcast(Intent("com.example.coup_project.START_COUP_SERVICE"))
         startForeground(1, notification.build())
         return START_NOT_STICKY
     }
@@ -105,6 +102,7 @@ class CoupService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         Firebase.database.reference.child(token).removeEventListener(addValueListener)
+        sendBroadcast(Intent("com.example.coup_project.END_COUP_SERVICE"))
         Log.i(TAG, "End CoupService")
     }
 

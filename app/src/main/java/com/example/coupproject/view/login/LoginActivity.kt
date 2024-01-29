@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -27,9 +28,21 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.bind(layoutInflater.inflate(R.layout.activity_login, null))
         binding.activity = this
-        me()
-        requestPermission()
         setContentView(binding.root)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.progress.visibility = View.VISIBLE
+//        me()
+        /** 가상머신테스트용 로그인*/
+        startActivity(
+            Intent(this@LoginActivity, MainActivity::class.java).putExtra(
+                "token",
+                "1223334444"
+            )
+        )
+        requestPermission()
     }
 
     fun logout() {
@@ -56,6 +69,7 @@ class LoginActivity : AppCompatActivity() {
                 Log.e(TAG, it.message, it)
             }
         }
+        binding.progress.visibility = View.GONE
     }
 
     fun startKakaoLogin() {
